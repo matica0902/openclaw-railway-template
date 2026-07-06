@@ -21,7 +21,6 @@ RUN mkdir -p /openclaw \
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN echo 'onlyBuiltDependencies[]=node-pty' > .npmrc
 RUN corepack enable && pnpm install --frozen-lockfile --prod
 
 COPY src ./src
