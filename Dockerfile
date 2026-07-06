@@ -21,7 +21,8 @@ RUN mkdir -p /openclaw \
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
-RUN corepack enable && pnpm install --frozen-lockfile --prod --config.onlyBuiltDependencies='["node-pty"]'
+RUN echo 'onlyBuiltDependencies[]=node-pty' > .npmrc
+RUN corepack enable && pnpm install --frozen-lockfile --prod
 
 COPY src ./src
 COPY --chmod=755 entrypoint.sh ./entrypoint.sh
