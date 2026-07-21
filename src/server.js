@@ -148,11 +148,33 @@ function isConfigured() {
   }
 }
 
+function readConfigJson() {
+  try {
+    return JSON.parse(fs.readFileSync(configPath(), "utf8"));
+  } catch (err) {
+    log.warn("gateway", `could not read config before sync: ${err.code || err.message}`);
+    return null;
+  }
+}
+
+function stringArraysEqual(a, b) {
+  if (!Array.isArray(a) || !Array.isArray(b)) return false;
+  if (a.length !== b.length) return false;
+  return a.every((value, index) => value === b[index]);
+}
+
 async function syncAllowedOrigins() {
   const publicDomain = process.env.RAILWAY_PUBLIC_DOMAIN;
   if (!publicDomain) return;
 
   const origin = `https://${publicDomain}`;
+  const existing = readConfigJson();
+  const currentOrigins = existing?.gateway?.controlUi?.allowedOrigins;
+  if (stringArraysEqual(currentOrigins, [origin])) {
+    log.info("gateway", `allowedOrigins already set to [${origin}]`);
+    return;
+  }
+
   const result = await runCmd(
     OPENCLAW_NODE,
     clawArgs([
